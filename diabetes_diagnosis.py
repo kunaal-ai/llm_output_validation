@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Assessment(BaseModel):
-    """Structured diabetes risk assessment from LLM output."""
+    """blue-print -Structured diabetes risk assessment from LLM output."""
     risk_level: Literal['Low', 'Medium', 'High'] = Field(
         ...,
         description="Risk level must be one of: 'Low', 'Medium', or 'High'"
@@ -32,16 +32,38 @@ class Assessment(BaseModel):
             raise ValueError("All items must be non-empty strings")
         return v
 
+def validate_llm_output(data: dict) -> dict:
+    """Validate LLM output structure and content."""
+    # 1. Check required fields
+    required = {'risk_level', 'key_factors', 'recommendations'}
+    if missing := required - data.keys():
+        return {'valid': False, 'error': f'Missing fields: {missing}'}
+    
+    # 2. Validate risk level
+    if data['risk_level'] not in ('Low', 'Medium', 'High'):
+        return {'valid': False, 'error': 'Invalid risk_level. Must be: Low, Medium, or High'}
+    
+    # 3. Validate lists are non-empty
+    for field in ('key_factors', 'recommendations'):
+        if not data[field] or not all(isinstance(x, str) and x.strip() for x in data[field]):
+            return {'valid': False, 'error': f'Invalid {field}: Must be non-empty list of strings'}
+    
+    return {'valid': True, 'data': data}
+
 def validate(text):
-    """Validate the LLM output against the Assessment model."""
+    """Parse and validate LLM JSON output."""
     try:
         data = json.loads(text)
-        assessment = Assessment.model_validate(data)
-        return {"valid": True, "data": assessment.model_dump()}
+        validation = validate_llm_output(data)
+        if validation['valid']:
+            assessment = Assessment.model_validate(validation['data'])
+            return {"valid": True, "data": assessment.model_dump()}
+        return validation
     except json.JSONDecodeError as e:
         return {"valid": False, "error": f"Invalid JSON: {str(e)}"}
     except Exception as e:
         return {"valid": False, "error": f"Validation error: {str(e)}"}
+    
 
 def get_risk(patient):
     """Get diabetes risk assessment from LLM."""
@@ -76,7 +98,21 @@ def get_risk(patient):
     result = response.choices[0].message.content
     return {"raw": result, "validation": validate(result)}
 
+def print_validation_report(validation):
+    """Print formatted validation results."""
+    print("\n" + "=" * 40)
+    status = "✅ Valid" if validation['valid'] else "❌ Invalid"
+    print(f"Validation: {status}")
+    
+    if not validation['valid']:
+        print(f"\nError: {validation['error']}")
+    else:
+        print("\nAssessment:")
+        print(json.dumps(validation['data'], indent=2))
+    print("=" * 40 + "\n")
+
 if __name__ == "__main__":
+    # Test patient data
     patient = {
         "age": 45, "bmi": 28.5, "glucose_level": 110,
         "family_history": "Father had type 2 diabetes",
@@ -86,15 +122,12 @@ if __name__ == "__main__":
         "physical_activity": "sedentary"
     }
     
+    # Get and validate LLM response
     result = get_risk(patient)
-    print("\nValidation Result:")
-    print("=" * 40)
-    if result["validation"]["valid"]:
-        print(" Valid assessment:")
-        print(json.dumps(result["validation"]["data"], indent=2))
-    else:
-        print(" Invalid assessment:")
-        print(result["validation"]["error"])
-        print("\nRaw LLM response:")
+    print_validation_report(result["validation"])
+    
+    # Show raw response if validation failed
+    if not result["validation"]["valid"]:
+        print("Raw LLM response:")
         print("-" * 40)
         print(result["raw"])
