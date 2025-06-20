@@ -1,25 +1,44 @@
 import os, json
+from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
 
+# Load environment variables from .env file
 load_dotenv()
 
-def get_diabetes_risk(patient_data):
+class Assessment(BaseModel):
+    risk_level: str
+    key_factors: list
+    recommendations: list
+
+def validate(text):
+    data = json.loads(text)
+    return {"valid": True, "data": Assessment(**data).model_dump()}
+
+def get_risk(patient):
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-    prompt = f"""Analyze this patient data and provide a diabetes risk assessment:
-    {json.dumps(patient_data, indent=2)}
     
-    Provide: 1) Risk level (Low/Medium/High) 2) Key risk factors 3) Recommendations"""
+    prompt = f"""Analyze this patient data and return a JSON object with:
+    - risk_level: 'Low', 'Medium', or 'High'
+    - key_factors: list of strings
+    - recommendations: list of strings
+
+    Patient Data: {json.dumps(patient, indent=2)}
+    
+    Return only the JSON object."""
     
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": "You are a medical assistant providing diabetes risk assessments"},
+            {"role": "system", "content": "Provide diabetes risk assessment in JSON format"},
             {"role": "user", "content": prompt}
         ],
-        temperature=0.3
+        temperature=0.3,
+        response_format={"type": "json_object"}
     )
-    return response.choices[0].message.content
+    print(response.choices[0])
+    result = response.choices[0].message.content
+    return {"raw": result, "validation": validate(result)}
 
 if __name__ == "__main__":
     patient = {
@@ -31,6 +50,7 @@ if __name__ == "__main__":
         "physical_activity": "sedentary"
     }
     
-    print("\nDiabetes Risk Assessment:")
+    result = get_risk(patient)
+    print("\nAssessment:")
     print("=" * 40)
-    print(get_diabetes_risk(patient))
+    print(json.dumps(result["validation"]["data"], indent=2))
