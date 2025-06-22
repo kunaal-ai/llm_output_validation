@@ -49,7 +49,6 @@ class TestEdgeCases:
         validation = result["validation"]
         log_test_case(f"Missing field: {field}", patient, validation)
         
-        # Check if the system handles missing fields gracefully
         assert isinstance(validation, dict), "Response should be a dictionary"
         if not validation.get("valid", False):
             logger.info(f"Expected failure for missing {field}: {validation.get('error', 'No error message')}")
@@ -73,9 +72,6 @@ class TestEdgeCases:
                 {field: value}, 
                 validation
             )
-            
-            # The system should either handle the invalid input gracefully
-            # or provide a meaningful error
             assert isinstance(validation, dict), "Response should be a dictionary"
 
     def test_extreme_values(self):
@@ -99,7 +95,6 @@ class TestEdgeCases:
                 validation
             )
             
-            # The system should handle extreme values gracefully
             assert isinstance(validation, dict), "Response should be a dictionary"
             if validation.get("valid", False):
                 assert validation["data"]["risk_level"] in ["Low", "Medium", "High"]
@@ -113,7 +108,6 @@ class TestEdgeCases:
         validation = result["validation"]
         log_test_case("Empty symptoms", patient, validation)
         
-        # Empty symptoms should be handled gracefully
         assert isinstance(validation, dict), "Response should be a dictionary"
         if validation.get("valid", False):
             assert validation["data"]["risk_level"] in ["Low", "Medium", "High"]
@@ -135,7 +129,6 @@ class TestEdgeCases:
         validation = result["validation"]
         log_test_case("All null values", patient, validation)
         
-        # The system should handle null values gracefully
         assert isinstance(validation, dict), "Response should be a dictionary"
         if not validation.get("valid", False):
             logger.info(f"Expected failure for null values: {validation.get('error', 'No error message')}")
