@@ -1,7 +1,7 @@
 #!/bin/bash
-python -m pytest tests/test_diabetes.py --html=reports/test_report.html --self-contained-html
+python -m pytest tests/ --use-mock --html=reports/test_report.html --self-contained-html
 
-rm -r __pycache__/ .pytest_cache/
+rm -r __pycache__/ .pytest_cache/ tests/__pycache__
 
 exit 0
 

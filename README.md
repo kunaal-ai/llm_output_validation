@@ -15,25 +15,38 @@ A simple Python script that uses OpenAI's GPT-3.5 model to provide diabetes risk
    pip install -r requirements.txt
    ```
 
-3. Create a `.env` file in the project root and add your OpenAI API key:
-   ```
-   OPENAI_API_KEY=your_api_key_here
-   ```
-
-## Usage
-
-1. Edit the `example_patient` dictionary in `diabetes_diagnosis.py` with the patient's data.
-2. Run the script:
+3. Set up your OpenAI API key:
    ```bash
-   python diabetes_diagnosis.py
+   echo "OPENAI_API_KEY=your_api_key_here" > .env
    ```
 
-## Example Output
+## Testing
 
-The script will output a diabetes risk assessment based on the provided patient data, including:
-- Risk level (Low/Medium/High)
-- Key factors contributing to the risk
-- Recommended next steps
+### Mock vs Real API
+
+The test suite includes a mock for the OpenAI API to avoid making real API calls during testing. This is the default behavior.
+
+#### Running Tests with Mocks (Default)
+
+```bash
+# Using the test script (recommended)
+bash scripts/run_tests.sh
+
+# Or directly with pytest
+pytest tests/
+```
+
+#### Running Tests with Real API
+
+If you want to run tests against the real OpenAI API (not recommended for normal testing):
+
+```bash
+# Using environment variable
+USE_MOCK=false pytest tests/
+
+# Or using command line flag
+pytest tests/ --use-mock=false
+```
 
 ## Requirements
 
