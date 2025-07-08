@@ -159,6 +159,10 @@ if __name__ == "__main__":
     result = get_risk(patient)
     print_validation_report(result["validation"])
 
+    print("*" * 50)
+    print("Risk Assessment Result:")
+    print(json.dumps(result, indent=2))
+
     # Show raw response if validation failed
     if not result["validation"]["valid"]:
         print("Raw LLM response:")
