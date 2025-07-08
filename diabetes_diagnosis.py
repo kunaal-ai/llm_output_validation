@@ -44,15 +44,14 @@ def validate_llm_output(data: dict) -> dict:
             "error": "Invalid risk_level. Must be: Low, Medium, or High",
         }
 
-    # 3. Validate lists are non-empty
+    # 3. Validate lists are non-empty and contain non-empty strings
     for field in ("key_factors", "recommendations"):
-        if not data[field] or not all(
-            isinstance(x, str) and x.strip() for x in data[field]
-        ):
-            return {
-                "valid": False,
-                "error": f"Invalid {field}: Must be non-empty list of strings",
-            }
+        if not isinstance(data[field], list) or not data[field]:
+            return {"valid": False, "error": f"Invalid {field}: Must be non-empty list of strings"}
+            
+        for item in data[field]:
+            if not isinstance(item, str) or not item.strip():
+                return {"valid": False, "error": f"Invalid {field}: All items must be non-empty strings"}
 
     return {"valid": True, "data": data}
 

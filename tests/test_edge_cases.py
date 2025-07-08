@@ -1,17 +1,20 @@
 """Test edge cases for diabetes diagnosis validation."""
 import json
 import logging
+import sys
 import pytest
 from typing import Dict, Any, Optional
 from diabetes_diagnosis import get_risk, validate
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='test_edge_cases.log'
-)
+# Configure logging to output to stdout
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.propagate = False  # Prevent duplicate logs
 
 # Base valid patient data
 BASE_PATIENT = {
@@ -28,10 +31,14 @@ BASE_PATIENT = {
 
 def log_test_case(name: str, data: Dict[str, Any], result: Dict[str, Any]):
     """Log test case details and results."""
-    logger.info(f"Test case: {name}")
-    logger.info(f"Input data: {json.dumps(data, indent=2)}")
-    logger.info(f"Result: {json.dumps(result, indent=2)}")
-    logger.info("-" * 80)
+    print("\n" + "="*80)
+    print(f"TEST CASE: {name}")
+    print("-"*80)
+    print("INPUT DATA:")
+    print(json.dumps(data, indent=2))
+    print("\nRESULT:")
+    print(json.dumps(result, indent=2))
+    print("="*80 + "\n")
 
 class TestEdgeCases:    
     """Test cases for edge cases in diabetes diagnosis."""
@@ -42,16 +49,25 @@ class TestEdgeCases:
     ])
     def test_missing_required_fields(self, field: str):
         """Test behavior when required fields are missing."""
+        print(f"\n{'*'*10} Testing missing required field: {field} {'*'*10}")
         patient = BASE_PATIENT.copy()
         patient.pop(field, None)
         
+        print(f"Sending request with missing field: {field}")
         result = get_risk(patient)
         validation = result["validation"]
-        log_test_case(f"Missing field: {field}", patient, validation)
+        
+        log_test_case(
+            f"Missing required field: {field}",
+            {k: v for k, v in patient.items() if k != field},
+            validation
+        )
         
         assert isinstance(validation, dict), "Response should be a dictionary"
         if not validation.get("valid", False):
-            logger.info(f"Expected failure for missing {field}: {validation.get('error', 'No error message')}")
+            print(f"✅ Expected failure for missing {field}. Error: {validation.get('error', 'No error message')}")
+        else:
+            print(f"❌ Unexpected success for missing {field}")
 
     @pytest.mark.parametrize("field,invalid_values", [
         ("age", [-1, 0, 151, "not_an_age"]),

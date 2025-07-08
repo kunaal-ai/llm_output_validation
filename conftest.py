@@ -1,18 +1,7 @@
 """Test configuration with mock OpenAI API scenarios."""
-import vcr
 import json
 from unittest.mock import patch, MagicMock
 import pytest
-
-def scrub_header(headers, header_to_scrub):
-    if header_to_scrub in headers:
-        headers[header_to_scrub] = '[FILTERED]'
-    return headers
-
-my_vcr = vcr.VCR(
-    filter_headers=[('authorization', 'AUTHORIZATION')],
-    before_record_response=lambda r: scrub_header(r['headers'], 'authorization')
-)
 
 # Mock response templates
 MOCK_RESPONSES = {
