@@ -34,9 +34,10 @@ def test_success_scenario(success_mock, get_risk_fix):
     assert "recommendations" in data
 
 def test_rate_limit_scenario(rate_limit_mock, test_patient):
-    with pytest.raises(Exception) as exc_info:
-        get_risk(TEST_PATIENT)
-    assert "Rate limit exceeded" in str(exc_info.value)
+    # The function now returns a structured error response instead of raising an exception
+    result = get_risk(test_patient)
+    assert not result["validation"]["valid"]
+    assert "Rate limit exceeded" in result["validation"].get("error", "")
 
 def test_partial_response_scenario(partial_mock, get_risk_fix):
     result = get_risk_fix

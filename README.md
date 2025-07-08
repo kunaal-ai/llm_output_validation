@@ -1,52 +1,116 @@
-# Diabetes Diagnosis with LLM
+# Diabetes Risk Assessment with LLM
 
-A simple Python script that uses OpenAI's GPT-3.5 model to provide diabetes risk assessments based on patient data.
+A Python application that provides structured diabetes risk assessments using OpenAI's language models. The application processes patient data, generates risk assessments, and validates the output to ensure reliability and consistency.
 
-## Setup
+## Features
 
-1. Create and activate a virtual environment:
+- Structured diabetes risk assessment using OpenAI's GPT models
+- Input validation using Pydantic models
+- Comprehensive test suite with unit and integration tests
+- Mock-based testing to avoid real API calls during development
+- Type hints and static type checking with mypy
+- Code formatting with Black and isort
+
+## Prerequisites
+
+- Python 3.10 or higher
+- OpenAI API key
+- pip (Python package manager)
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/llm_output_validation.git
+   cd llm_output_validation
+   ```
+
+2. Create and activate a virtual environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    ```
 
-2. Install the required packages:
+3. Install the required packages:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Set up your OpenAI API key:
+4. Set up your environment variables:
    ```bash
-   echo "OPENAI_API_KEY=your_api_key_here" > .env
+   cp .env.example .env
+   # Edit .env and add your OpenAI API key
    ```
+
+## Usage
+
+```python
+from diabetes_diagnosis import get_risk
+
+patient_data = {
+    "age": 45,
+    "bmi": 28.5,
+    "glucose_level": 110,
+    "family_history": "Father had type 2 diabetes",
+    "symptoms": ["increased thirst", "frequent urination"],
+    "blood_pressure": "130/85",
+    "cholesterol": {"total": 210, "hdl": 45, "ldl": 130},
+    "physical_activity": "sedentary"
+}
+
+result = get_risk(patient_data)
+print(result)
+```
 
 ## Testing
 
-### Mock vs Real API
+The test suite includes unit tests and integration tests with mocked API responses.
 
-The test suite includes a mock for the OpenAI API to avoid making real API calls during testing. This is the default behavior.
-
-#### Running Tests with Mocks (Default)
+### Running Tests
 
 ```bash
-# Using the test script (recommended)
-bash scripts/run_tests.sh
-
-# Or directly with pytest
+# Run all tests
 pytest tests/
+
+# Run with coverage report
+pytest --cov=diabetes_diagnosis tests/
+
+# Generate HTML coverage report
+pytest --cov=diabetes_diagnosis --cov-report=html tests/
 ```
 
-#### Running Tests with Real API
+### Test Structure
 
-If you want to run tests against the real OpenAI API (not recommended for normal testing):
+- `tests/test_diabetes.py`: Core functionality tests
+- `tests/test_edge_cases.py`: Edge case validation tests
+- `tests/test_mock_scenarios.py`: Mocked API response tests
 
-```bash
-# Using environment variable
-USE_MOCK=false pytest tests/
+## Development
 
-# Or using command line flag
-pytest tests/ --use-mock=false
-```
+### Code Style
+
+The project uses:
+- Black for code formatting
+- isort for import sorting
+- mypy for static type checking
+
+### Development Workflow
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests and checks:
+   ```bash
+   black .
+   isort .
+   mypy .
+   pytest
+   ```
+4. Commit your changes with a descriptive message
+5. Open a pull request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Requirements
 
