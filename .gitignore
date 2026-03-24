@@ -7,10 +7,22 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# IDE specific files
+# IDE / tooling (keep shared workspace settings)
 .idea/
-.vscode/
+.vscode/*
+!.vscode/settings.json
 *.swp
+
+# Test & type-check caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Editor extensions (e.g. Cursor Healix)
+.healix/
 *.swo
 
 # Logs and databases

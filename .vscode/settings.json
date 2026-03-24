@@ -1,0 +1,24 @@
+{
+  "explorer.excludeGitIgnore": true,
+  "files.exclude": {
+    "**/.healix": true,
+    "**/.pytest_cache": true,
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/htmlcov": true,
+    "**/.coverage": true,
+    "**/venv": true,
+    "**/.venv": true
+  },
+  "search.exclude": {
+    "**/.healix": true,
+    "**/.pytest_cache": true,
+    "**/__pycache__": true,
+    "**/.mypy_cache": true,
+    "**/.ruff_cache": true,
+    "**/htmlcov": true,
+    "**/venv": true,
+    "**/.venv": true
+  }
+}

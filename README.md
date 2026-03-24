@@ -1,48 +1,43 @@
 # Diabetes Risk Assessment with LLM
 
-A Python application that provides structured diabetes risk assessments using OpenAI's language models. The application processes patient data, generates risk assessments, and validates the output to ensure reliability and consistency.
+This project demonstrates how to pair **OpenAI chat completions** with a **strict validation layer**: patient-style data goes to the model, the response must be JSON with a fixed shape, and **Pydantic** enforces that structure so incomplete or invalid outputs are caught before you trust them.
 
-## Features
+It is **not** a regulated medical device or substitute for professional care—scope is educational and portfolio use only.
 
-- Structured diabetes risk assessment using OpenAI's GPT models
-- Input validation using Pydantic models
-- Comprehensive test suite with unit and integration tests
-- Mock-based testing to avoid real API calls during development
-- Type hints and static type checking with mypy
-- Code formatting with Black and isort
+---
 
-## Prerequisites
+**What this showcases**
 
-- Python 3.10 or higher
-- OpenAI API key
-- pip (Python package manager)
+- **Structured LLM outputs** via OpenAI JSON response mode (`gpt-3.5-turbo`)
+- **Schema enforcement** with a Pydantic `Assessment` model (`risk_level`, `key_factors`, `recommendations`)
+- **Reliable testing** through mocked OpenAI clients—the full test suite runs **without** live API calls or billing
 
-## Installation
+---
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/llm_output_validation.git
-   cd llm_output_validation
-   ```
+**Requirements**
 
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
+Python 3.10+, `pip`, and an OpenAI API key when exercising the live API path.
 
-3. Install the required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-4. Set up your environment variables:
-   ```bash
-   cp .env.example .env
-   # Edit .env and add your OpenAI API key
-   ```
+**Setup**
 
-## Usage
+```bash
+git clone https://github.com/yourusername/llm_output_validation.git
+cd llm_output_validation
+
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+
+pip install -r requirements.txt
+
+cp .env.example .env
+# Set OPENAI_API_KEY in .env
+```
+
+---
+
+**Usage (Python)**
 
 ```python
 from diabetes_diagnosis import get_risk
@@ -55,60 +50,53 @@ patient_data = {
     "symptoms": ["increased thirst", "frequent urination"],
     "blood_pressure": "130/85",
     "cholesterol": {"total": 210, "hdl": 45, "ldl": 130},
-    "physical_activity": "sedentary"
+    "physical_activity": "sedentary",
 }
 
 result = get_risk(patient_data)
 print(result)
 ```
 
-## Testing
-
-The test suite includes unit tests and integration tests with mocked API responses.
-
-### Running Tests
+Run the included sample end-to-end:
 
 ```bash
-# Run all tests
+python diabetes_diagnosis.py
+```
+
+---
+
+**Project layout**
+
+- `diabetes_diagnosis.py` — `get_risk`, `validate`, `validate_llm_output`
+- `conftest.py` — pytest fixtures (mocked OpenAI)
+- `tests/` — validation, edge cases, and mock API scenarios
+- `scripts/run_tests.sh` — pytest with HTML output under `reports/`
+- `DOCUMENTATION.md` — deeper technical notes
+
+---
+
+**Tests**
+
+```bash
 pytest tests/
+```
 
-# Run with coverage report
+HTML report (pytest-html is listed in `requirements.txt`):
+
+```bash
+bash scripts/run_tests.sh
+```
+
+Coverage (optional):
+
+```bash
+pip install pytest-cov
 pytest --cov=diabetes_diagnosis tests/
-
-# Generate HTML coverage report
 pytest --cov=diabetes_diagnosis --cov-report=html tests/
 ```
 
-### Test Structure
+---
 
-- `tests/test_diabetes.py`: Core functionality tests
-- `tests/test_edge_cases.py`: Edge case validation tests
-- `tests/test_mock_scenarios.py`: Mocked API response tests
+**Contributing**
 
-## Development
-
-### Code Style
-
-The project uses:
-- Black for code formatting
-- isort for import sorting
-- mypy for static type checking
-
-### Development Workflow
-
-1. Create a feature branch
-2. Make your changes
-3. Run tests and checks:
-   ```bash
-   black .
-   isort .
-   mypy .
-   pytest
-   ```
-4. Commit your changes with a descriptive message
-5. Open a pull request
-
-## Requirements
-
-- Python 3.6+
-- OpenAI API key
+Use a branch, run `pytest tests/` before opening a PR, and describe the change in the PR. Black, isort, and mypy are optional local tools—they are not pinned in `requirements.txt`.
